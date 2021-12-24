@@ -15,6 +15,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import cz.crusty.aircrafter.repository.remote.model.StatesResponse
@@ -26,11 +27,14 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import timber.log.Timber
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.concurrent.timer
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private var updateTimer: Timer? = null
     private var planeBitmap: BitmapDescriptor? = null
     private lateinit var map: GoogleMap
     private lateinit var clusterManager: ClusterManager<Item>
@@ -42,16 +46,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(R.layout.activity_maps)
 
         floating.setOnClickListener {
-            val dialog = MapOptionsBottomSheetDialog(this)
-            dialog.setup(bottom_sheet)
+            Snackbar.make(coordinator, "Hello", Snackbar.LENGTH_SHORT).show()
         }
+
+        val dialog = MapOptionsBottomSheetDialog(this)
+        dialog.setup(bottom_sheet)
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-        timer(period = 10_000) {
-            viewModel.loadStates()
-        }
 
         viewModel.apply {
 
@@ -72,6 +74,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     setSubtitle("${pokemonAdapter.itemCount} / ${value?.count ?: "0"}")
                 }
             }*/
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        updateTimer = timer(period = 10_000) {
+            viewModel.loadStates()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        updateTimer?.let {
+            it.cancel()
+            updateTimer = null
         }
     }
 
@@ -119,7 +136,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val lat = plane.latitude
             val lon = plane.longitude
             clusterManager.addItem(
-                Item(lat, lon, "Callsign  ${plane.callsign}", "Snip snip", plane)
+                Item(lat, lon, "Callsign  ${plane.callsign}", plane.origin_country, plane)
             )
         }
         clusterManager.cluster()
