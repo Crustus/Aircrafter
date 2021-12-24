@@ -17,7 +17,7 @@ class StatesViewModel(val api: API) : BaseViewModel() {
         loadStates()
     }
 
-    private fun loadStates() {
+    public fun loadStates() {
         call(
             onRequest = {
                 api.getPlanesOverCZE()

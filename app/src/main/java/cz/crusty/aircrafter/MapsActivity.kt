@@ -19,13 +19,19 @@ import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import cz.crusty.aircrafter.repository.remote.model.StatesResponse
 import cz.crusty.aircrafter.ui.dashboard.StatesViewModel
+import cz.crusty.aircrafter.ui.dialog.MapOptionsBottomSheetDialog
+import kotlinx.android.synthetic.main.activity_maps.*
+import kotlinx.android.synthetic.main.map_options_bottom_sheet_dialog.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import timber.log.Timber
+import kotlin.concurrent.timer
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private var planeBitmap: BitmapDescriptor? = null
     private lateinit var map: GoogleMap
     private lateinit var clusterManager: ClusterManager<Item>
 
@@ -35,8 +41,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
+        floating.setOnClickListener {
+            val dialog = MapOptionsBottomSheetDialog(this)
+            dialog.setup(bottom_sheet)
+        }
+
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        timer(period = 10_000) {
+            viewModel.loadStates()
+        }
 
         viewModel.apply {
 
@@ -63,15 +78,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
 
-        val sydney = LatLng(49.88177423198855, 15.166487457354766)
-        map.addMarker(MarkerOptions().position(sydney).title("Czech republic"))
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 7f))
+        val cze = LatLng(49.88177423198855, 15.166487457354766)
+        //map.addMarker(MarkerOptions().position(cze).title("Czech republic"))
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(cze, 7f))
+
+        planeBitmap = bitmapDescriptorFromVector(this@MapsActivity, R.drawable.ic_plane_solid)
 
         clusterManager = ClusterManager(this, map)
         clusterManager.renderer = object : DefaultClusterRenderer<Item>(this, map, clusterManager) {
             override fun onBeforeClusterItemRendered(item: Item, markerOptions: MarkerOptions) {
                 super.onBeforeClusterItemRendered(item, markerOptions)
-                markerOptions.icon(bitmapDescriptorFromVector(this@MapsActivity, R.drawable.ic_plane_solid))
+                markerOptions.icon(planeBitmap)
+                item.plane.true_track?.let { markerOptions.rotation(it - 90) }
             }
         }
         map.setOnCameraIdleListener(clusterManager)
@@ -81,7 +99,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
         return ContextCompat.getDrawable(context, vectorResId)?.run {
             setBounds(0, 0, intrinsicWidth, intrinsicHeight)
-            val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+            val bitmap = Bitmap.createBitmap(
+                intrinsicWidth,
+                intrinsicHeight,
+                Bitmap.Config.ARGB_8888
+            )
             draw(Canvas(bitmap))
             BitmapDescriptorFactory.fromBitmap(bitmap)
         }
@@ -97,8 +119,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val lat = plane.latitude
             val lon = plane.longitude
             clusterManager.addItem(
-                Item(lat, lon, "Callsign  ${plane.callsign}", "Snip snip")
+                Item(lat, lon, "Callsign  ${plane.callsign}", "Snip snip", plane)
             )
         }
+        clusterManager.cluster()
     }
 }
