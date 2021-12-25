@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Aircrafter</string>
     <string name="title_activity_maps">Map</string>
+    <string name="speed">Speed</string>
+    <string name="altitude">Altitude</string>
+    <string name="cluster_planes">Cluster planes</string>
+    <string name="options">Options</string>
 </resources>
