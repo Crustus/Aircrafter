@@ -17,18 +17,26 @@
         android:backgroundTint="@color/design_default_color_primary"
         android:textColor="@color/white"
         android:gravity="center_vertical"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:text="Header"
+        android:paddingTop="@dimen/padding_small"
+        android:paddingBottom="@dimen/padding_small"
+        android:paddingStart="@dimen/padding_normal"
+        android:paddingEnd="@dimen/padding_normal"
+        android:text="@string/settings"
         android:textSize="22sp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
+        android:padding="@dimen/padding_small"
         >
+
+        <CheckBox
+            android:id="@+id/cluster_planes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/cluster_planes"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/label_options"
@@ -36,7 +44,7 @@
             android:layout_height="wrap_content"
             android:padding="8dp"
             android:text="@string/options"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/cluster_planes" />
 
         <RadioGroup
             android:id="@+id/options_group"
@@ -58,13 +66,6 @@
                 android:layout_height="wrap_content"
                 android:text="@string/altitude" />
         </RadioGroup>
-
-        <CheckBox
-            android:id="@+id/cluster_planes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/cluster_planes"
-            app:layout_constraintTop_toBottomOf="@id/options_group" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

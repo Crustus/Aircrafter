@@ -5,7 +5,6 @@ import android.view.View
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.android.synthetic.main.map_options_bottom_sheet_dialog.view.*
-import kotlinx.coroutines.flow.collect
 import org.koin.java.KoinJavaComponent.inject
 
 class MapOptionsBottomSheetDialog(context: Context) : BottomSheetDialog(context) {
@@ -13,7 +12,7 @@ class MapOptionsBottomSheetDialog(context: Context) : BottomSheetDialog(context)
     public val viewModel: MapOptionsViewModel by inject(MapOptionsViewModel::class.java)
     lateinit var sheetBehavior: BottomSheetBehavior<View>
 
-    fun setup(view: View) {
+    fun setup(view: View, onExpanded: (height: Float) -> Unit, onCollapsed: (height: Float) -> Unit) {
 
         sheetBehavior = BottomSheetBehavior.from(view);
         sheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
@@ -27,8 +26,10 @@ class MapOptionsBottomSheetDialog(context: Context) : BottomSheetDialog(context)
             header.setOnClickListener {
                 if (sheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
                     sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED)
+                    onExpanded.invoke(view.measuredHeight.toFloat())
                 } else {
                     sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
+                    onCollapsed.invoke(view.measuredHeight.toFloat())
                 }
             }
 

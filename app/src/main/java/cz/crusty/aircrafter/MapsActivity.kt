@@ -3,10 +3,7 @@ package cz.crusty.aircrafter
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.clustering.ClusterManager
@@ -38,12 +35,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
-        floating.setOnClickListener {
-            Snackbar.make(coordinator, "Hello", Snackbar.LENGTH_SHORT).show()
-        }
-
         val dialog = MapOptionsBottomSheetDialog(this)
-        dialog.setup(bottom_sheet)
+        dialog.setup(bottom_sheet,
+        onExpanded = { height ->
+            map.animateCamera(CameraUpdateFactory.scrollBy(0f, height * 0.5f))
+        },
+        onCollapsed = { height ->
+            map.animateCamera(CameraUpdateFactory.scrollBy(0f, -(height * 0.5f)))
+        })
 
         optionsViewModel = dialog.viewModel
 

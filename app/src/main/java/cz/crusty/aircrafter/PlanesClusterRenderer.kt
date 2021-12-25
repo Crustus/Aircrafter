@@ -36,7 +36,7 @@ class PlanesClusterRenderer(markerIconRes: Int, context: Context, map: GoogleMap
     }
 
     override fun shouldRenderAsCluster(cluster: Cluster<Item>): Boolean {
-        Timber.d("render as Clusters %s", renderAsClusters)
+        //Timber.d("render as Clusters %s", renderAsClusters)
         return if (renderAsClusters) super.shouldRenderAsCluster(cluster) else false
     }
 

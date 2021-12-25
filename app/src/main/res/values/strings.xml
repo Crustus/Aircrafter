@@ -5,4 +5,5 @@
     <string name="altitude">Altitude</string>
     <string name="cluster_planes">Cluster planes</string>
     <string name="options">Options</string>
+    <string name="settings">Settings</string>
 </resources>
