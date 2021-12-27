@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 class MapOptionsViewModel() : BaseViewModel() {
 
     private val _clusterPlanes: MutableStateFlow<Boolean> = MutableStateFlow(true)
-
     val clusterPlanes: StateFlow<Boolean> = _clusterPlanes
+
     init {
 
     }

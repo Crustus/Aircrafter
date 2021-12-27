@@ -5,13 +5,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.clustering.ClusterManager
 import cz.crusty.aircrafter.repository.remote.model.StatesResponse
 import cz.crusty.aircrafter.ui.dashboard.StatesViewModel
 import cz.crusty.aircrafter.ui.dialog.MapOptionsBottomSheetDialog
 import cz.crusty.aircrafter.ui.dialog.MapOptionsViewModel
-import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.android.synthetic.main.map_options_bottom_sheet_dialog.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -64,7 +62,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 states.collect {
                     //Timber.d("stateResponse: %s", it)
                     if (it != null) {
-                        addPlanes(it.states.items)
+                        setPlanes(it.states.items)
                     }
                 }
             }
@@ -89,17 +87,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
 
-        val cze = LatLng(49.88177423198855, 15.166487457354766)
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(cze, 7f))
-
         clusterManager = ClusterManager(this, map)
         clusterRenderer = PlanesClusterRenderer(R.drawable.ic_plane_solid, this, map, clusterManager)
         clusterManager.renderer = clusterRenderer
         map.setOnCameraIdleListener(clusterManager)
         map.setOnMarkerClickListener(clusterManager)
+
+        val cze = LatLng(49.88177423198855, 15.166487457354766)
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(cze, 7f))
     }
 
-    private fun addPlanes(items: ArrayList<StatesResponse.State>) {
+    private fun setPlanes(items: ArrayList<StatesResponse.State>) {
         clusterManager.clearItems()
         for (plane in items) {
             if (plane.latitude == null || plane.longitude == null) {

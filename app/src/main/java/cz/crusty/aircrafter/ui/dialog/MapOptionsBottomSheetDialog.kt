@@ -33,6 +33,7 @@ class MapOptionsBottomSheetDialog(context: Context) : BottomSheetDialog(context)
                 }
             }
 
+            cluster_planes.isChecked = viewModel.clusterPlanes.value
             cluster_planes.setOnCheckedChangeListener { buttonView, isChecked ->
                 viewModel.setClusterPlanes(isChecked)
             }
