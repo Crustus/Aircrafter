@@ -5,7 +5,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.maps.android.clustering.ClusterManager
+import cz.crusty.aircrafter.map.AircraftInfoWindowAdapter
+import cz.crusty.aircrafter.map.Item
+import cz.crusty.aircrafter.map.PlanesClusterRenderer
 import cz.crusty.aircrafter.repository.remote.model.StatesResponse
 import cz.crusty.aircrafter.ui.dashboard.StatesViewModel
 import cz.crusty.aircrafter.ui.dialog.MapOptionsBottomSheetDialog
@@ -66,6 +70,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
                 }
             }
+
         }
     }
 
@@ -88,7 +93,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         map = googleMap
 
         clusterManager = ClusterManager(this, map)
-        clusterRenderer = PlanesClusterRenderer(R.drawable.ic_plane_solid, this, map, clusterManager)
+        clusterManager.markerCollection.setInfoWindowAdapter(AircraftInfoWindowAdapter(layoutInflater))
+        clusterManager.setOnClusterItemClickListener {
+            val marker: Marker? = clusterRenderer?.getMarker(it)
+            Timber.d("manager itemClick %s, marker %s", it, marker)
+            marker?.apply {
+                tag = it
+                clusterRenderer?.setSelectedMarker(it)
+                showInfoWindow()
+            }
+            true
+        }
+        clusterRenderer = PlanesClusterRenderer(R.drawable.ic_plane_solid, this, map, clusterManager, )
         clusterManager.renderer = clusterRenderer
         map.setOnCameraIdleListener(clusterManager)
         map.setOnMarkerClickListener(clusterManager)

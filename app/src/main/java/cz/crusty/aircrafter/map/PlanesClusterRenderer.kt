@@ -1,32 +1,46 @@
-package cz.crusty.aircrafter
+package cz.crusty.aircrafter.map
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
+import cz.crusty.common.util.ThreadUtils
 import timber.log.Timber
 
-class PlanesClusterRenderer(markerIconRes: Int, context: Context, map: GoogleMap, private val clusterManager: ClusterManager<Item>)
+class PlanesClusterRenderer(markerIconRes: Int, val context: Context, map: GoogleMap, private val clusterManager: ClusterManager<Item>)
     : DefaultClusterRenderer<Item>(context, map, clusterManager) {
 
     private var renderAsClusters = true
     private var planeBitmap: BitmapDescriptor? = null
+    private var selectedItem: Item? = null
 
     init {
-        planeBitmap = bitmapDescriptorFromVector(context, markerIconRes)
+        planeBitmap = BitmapUtils.bitmapDescriptorFromVector(context, markerIconRes)
     }
 
 
     public fun setRenderAsClusters(enable: Boolean) {
         renderAsClusters = enable
-        clusterManager.cluster()
+        // FIXME markers not updated after this cluster call
+        ThreadUtils.runOnUi(context) {
+            clusterManager.cluster()
+        }
+    }
+
+    public fun setSelectedMarker(selectedItem: Item) {
+        this.selectedItem = selectedItem
+    }
+
+    override fun onClusterItemRendered(clusterItem: Item, marker: Marker) {
+        super.onClusterItemRendered(clusterItem, marker)
+        Timber.d("onClusterItem rendered %s, selected %s", clusterItem.plane.icao24, selectedItem?.plane?.icao24)
+        if (selectedItem?.plane?.icao24 == clusterItem.plane.icao24) {
+            marker.showInfoWindow()
+        }
     }
 
     override fun onBeforeClusterItemRendered(item: Item, markerOptions: MarkerOptions) {
@@ -38,18 +52,5 @@ class PlanesClusterRenderer(markerIconRes: Int, context: Context, map: GoogleMap
     override fun shouldRenderAsCluster(cluster: Cluster<Item>): Boolean {
         //Timber.d("render as Clusters %s", renderAsClusters)
         return if (renderAsClusters) super.shouldRenderAsCluster(cluster) else false
-    }
-
-    private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
-        return ContextCompat.getDrawable(context, vectorResId)?.run {
-            setBounds(0, 0, intrinsicWidth, intrinsicHeight)
-            val bitmap = Bitmap.createBitmap(
-                    intrinsicWidth,
-                    intrinsicHeight,
-                    Bitmap.Config.ARGB_8888
-            )
-            draw(Canvas(bitmap))
-            BitmapDescriptorFactory.fromBitmap(bitmap)
-        }
     }
 }

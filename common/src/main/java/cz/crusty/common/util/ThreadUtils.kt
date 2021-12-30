@@ -1,11 +1,14 @@
 package cz.crusty.common.util
 
+import android.content.Context
 import android.os.Looper
+import androidx.core.content.ContextCompat
 
-class ThreadUtils {
+object ThreadUtils {
 
-    companion object {
-        fun isMain(): Boolean = Looper.myLooper() == Looper.getMainLooper()
+    fun isMain(): Boolean = Looper.myLooper() == Looper.getMainLooper()
+
+    fun runOnUi(context: Context, function: () -> Unit) {
+        ContextCompat.getMainExecutor(context).execute(function)
     }
-
 }

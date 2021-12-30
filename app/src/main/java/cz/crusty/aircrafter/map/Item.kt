@@ -1,4 +1,4 @@
-package cz.crusty.aircrafter
+package cz.crusty.aircrafter.map
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterItem
