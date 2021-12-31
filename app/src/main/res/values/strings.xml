@@ -6,4 +6,6 @@
     <string name="cluster_planes">Cluster planes</string>
     <string name="options">Options</string>
     <string name="settings">Settings</string>
+    <string name="speed_m_s">m/s</string>
+    <string name="speed_km_h">km/h</string>
 </resources>

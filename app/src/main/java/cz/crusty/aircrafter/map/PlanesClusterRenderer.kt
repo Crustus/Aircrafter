@@ -31,7 +31,7 @@ class PlanesClusterRenderer(markerIconRes: Int, val context: Context, map: Googl
         }
     }
 
-    public fun setSelectedMarker(selectedItem: Item) {
+    public fun setSelectedMarker(selectedItem: Item?) {
         this.selectedItem = selectedItem
     }
 
@@ -39,6 +39,7 @@ class PlanesClusterRenderer(markerIconRes: Int, val context: Context, map: Googl
         super.onClusterItemRendered(clusterItem, marker)
         Timber.d("onClusterItem rendered %s, selected %s", clusterItem.plane.icao24, selectedItem?.plane?.icao24)
         if (selectedItem?.plane?.icao24 == clusterItem.plane.icao24) {
+            marker.tag = clusterItem
             marker.showInfoWindow()
         }
     }

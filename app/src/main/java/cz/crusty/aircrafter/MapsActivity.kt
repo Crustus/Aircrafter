@@ -108,6 +108,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         clusterManager.renderer = clusterRenderer
         map.setOnCameraIdleListener(clusterManager)
         map.setOnMarkerClickListener(clusterManager)
+        map.setOnMapClickListener {
+            clusterRenderer?.setSelectedMarker(null)
+        }
 
         val cze = LatLng(49.88177423198855, 15.166487457354766)
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(cze, 7f))
